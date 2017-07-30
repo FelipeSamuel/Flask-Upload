@@ -1,4 +1,4 @@
-from JobAPP import app
+from seuprojeto import app
 import os
 import uuid
 
