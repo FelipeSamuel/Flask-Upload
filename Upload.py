@@ -1,15 +1,24 @@
-from SeuModulo import app
-from SeuModulo import log
+from WMMobileCheff import app
+from WMMobileCheff import log
 import os
 import uuid
 
 class Upload(object):
 
-    __imagens = ['.png','.jpg', '.jpeg', '.gif', '.bmp']
-    __documentos = ['.doc','.docx', '.pdf', '.txt', '.xls', '.ppt']
-    __audios = ['.mp3', '.ogg', '.wma', '.aac','.ac3', '.wav']
-    __videos = ['.mp4', '.avi', '.mpeg', '.mov', '.rmvb', '.mkv', '.wmv']
-    __comprimidos = ['.zip', '.rar', '.7z'] 
+    __imagens = ['.png','.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.bpg', '.ico', '.img', '.jps']
+    __documentos = ['.doc','.docx', '.pdf', '.txt', '.xls', '.ppt', '.odp', '.pot', '.pps', '.csv']
+    __audios = ['.mp3', '.ogg', '.wma', '.aac','.ac3', '.wav', '.aa', '.aac', '.aiff']
+    __videos = ['.mp4', '.avi', '.mpeg', '.mov', '.rmvb', '.mkv', '.wmv', '.webm', '.flv', '.vob', '.mpg', '.m4v', '.3gp']
+    __comprimidos = ['.zip', '.rar', '.7z', '.iso', '.tar', '.bz2', '.gz', '.dmg', '.tar.gz', '.tgz']
+    __aplicativos = ['.exe', '.apk', '.deb', '.rpm', '.msi', '.jar', '.war', '.bin']
+    __fonts = ['.ttf', '.ttc', '.woff', '.otf', '.tfm', '.otf']
+    __vetores = ['.ai', '.cdr', '.cmx', '.eps', '.dxf', '.egt', '.svg', '.vsd']
+    __photoshop = ['.psd']
+    __scripts = ['.bat', '.cmd', '.js', '.php', '.py', '.vbs', '.cfg', '.conf']
+    __estilos = ['.css', '.less', '.sass']
+    __webpages = ['.html', '.htm', '.xhtml', '.mhtml', '.dtd', '.asp', '.jsp', '.phtml']
+    __dados = ['.json', '.xml', '.db', '.eml', '.sql', '.bak', '.log']
+    __temporarios = ['.temp', '.tmp']
     
     # File e um objeto request.files do flask
     def __init__(self, file):
@@ -35,6 +44,24 @@ class Upload(object):
             pasta += '\\videos'
         elif self.__extensao in self.__comprimidos:
             pasta += '\\comprimidos'
+        elif self.__extensao in self.__aplicativos:
+            pasta += '\\aplicativos'
+        elif self.__extensao in self.__fonts:
+            pasta += '\\fonts'
+        elif self.__extensao in self.__vetores:
+            pasta += '\\vetores'
+        elif self.__extensao in self.__scripts:
+            pasta += '\\scripts'
+        elif self.__extensao in self.__webpages:
+            pasta += '\\webpages'
+        elif self.__extensao in self.__dados:
+            pasta += '\\dados'
+        elif self.__extensao in self.__temporarios:
+            pasta += '\\temporarios'
+        elif self.__extensao in self.__photoshop:
+            pasta += '\\photoshop'
+        elif self.__extensao in self.__estilos:
+            pasta += '\\estilos'
 
         return pasta
 
