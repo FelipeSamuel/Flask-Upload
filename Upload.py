@@ -1,5 +1,6 @@
-from WMMobileCheff import app
-from WMMobileCheff import log
+from seumodulo import app
+from seumodulo import log
+from seumodulo import request
 import os
 import uuid
 
@@ -11,7 +12,7 @@ class Upload(object):
     __videos = ['.mp4', '.avi', '.mpeg', '.mov', '.rmvb', '.mkv', '.wmv', '.webm', '.flv', '.vob', '.mpg', '.m4v', '.3gp']
     __comprimidos = ['.zip', '.rar', '.7z', '.iso', '.tar', '.bz2', '.gz', '.dmg', '.tar.gz', '.tgz']
     __aplicativos = ['.exe', '.apk', '.deb', '.rpm', '.msi', '.jar', '.war', '.bin']
-    __fonts = ['.ttf', '.ttc', '.woff', '.otf', '.tfm', '.otf']
+    __fontes = ['.ttf', '.ttc', '.woff', '.otf', '.tfm', '.otf']
     __vetores = ['.ai', '.cdr', '.cmx', '.eps', '.dxf', '.egt', '.svg', '.vsd']
     __photoshop = ['.psd']
     __scripts = ['.bat', '.cmd', '.js', '.php', '.py', '.vbs', '.cfg', '.conf']
@@ -82,13 +83,13 @@ class Upload(object):
                     if not os.path.exists(upload):
                         try:
                             os.makedirs(upload)
-                            self.__file.save(os.path.join(upload, self.__nome))
-                            self.__path = upload + self.__nome
-                            self.__erro = ''
-                            return True
                         except:
                             log.logging()
                             self.__erro = 'Falha ao criar diretório'
+                    self.__file.save(os.path.join(upload, self.__nome))
+                    self.__path = upload + self.__nome
+                    self.__erro = ''
+                    return True
                 else:
                     self.__erro = 'Arquivo não suportado'
             else:
@@ -96,3 +97,19 @@ class Upload(object):
         except:
             log.logging()
         return False
+
+
+# Decorador
+def file_upload(func):
+        def uploading(*args, **kwargs):
+            if request.method == 'POST':
+                if 'file' in request.files:
+                    u = Upload(request.files['file'])
+                    retorno = None
+                    if u.salvar():
+                        retorno = {"erro": False, "path": u.path}
+                    else:
+                        retorno = {"erro": True, "msg": u.erro}
+                    return func(retorno, *args, **kwargs)
+            return func(*args, **kwargs)
+        return uploading
