@@ -85,13 +85,13 @@ class Upload(object):
                             os.makedirs(upload)
                         except:
                             log.logging()
-                            self.__erro = 'Falha ao criar diretório'
+                            self.__erro = 'Falha ao criar diretório.'
                     self.__file.save(os.path.join(upload, self.__nome))
                     self.__path = upload + self.__nome
                     self.__erro = ''
                     return True
                 else:
-                    self.__erro = 'Arquivo não suportado'
+                    self.__erro = 'Arquivo não suportado.'
             else:
                 self.__erro = 'Nenhum arquivo foi enviado.'
         except:
