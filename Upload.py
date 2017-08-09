@@ -1,9 +1,10 @@
-from seumodulo import app
-from seumodulo import log
+from CRM import app
+from CRM import log
 from flask import request
 import os
 import uuid
 from hurry.filesize import size
+from hurry.filesize import alternative
 
 class Upload(object):
 
@@ -67,7 +68,6 @@ class Upload(object):
 
         return pasta
 
-
     @property
     def path(self):
         return self.__path
@@ -83,10 +83,6 @@ class Upload(object):
     @property
     def extensao(self):
         return self.__extensao
-
-    @property
-    def file(self):
-        return self.__file
 
     def salvar(self):
         self.__erro = 'Falha ao salvar arquivo.'
@@ -124,20 +120,21 @@ def file_upload(func):
                     sucesso = 0
                     total = 0
                     bytes_enviados = 0
+                    tamanho = 0
                     for arquivo in request.files:
-                        tamanho = request.files[arquivo].seek(0,2)
                         if request.files[arquivo]:
                             total += 1
                             if tamanho <= app.config['MAX_SIZE_UPLOAD']:
                                 u = Upload(request.files[arquivo])
                                 if u.salvar():
+                                    tamanho = request.files[arquivo].seek(0,2)
                                     caminhos.append(
                                         {
                                             "erro": False, 
                                             "campo": arquivo, 
                                             "caminho_completo": u.path,
                                             "extensao": u.extensao,
-                                            "tamanho": size(tamanho),
+                                            "tamanho": size(tamanho, system=alternative),
                                             "nome_arquivo": u.nome,
                                             "msg": "Arquivo enviado com sucesso."
                                         })
@@ -160,14 +157,17 @@ def file_upload(func):
                                             })
                                 falhas +=1 
 
-                    porcentagem_falhas =  round((100 * float(falhas) / float (total)), 2)
-                    porcentagem_sucessos = round((100 * float(sucesso) / float (total)), 2)
+                    porcentagem_falhas = 0
+                    porcentagem_sucessos = 0
+                    if total != 0:
+                        porcentagem_falhas =  round((100 * float(falhas) / float (total)), 2)
+                        porcentagem_sucessos = round((100 * float(sucesso) / float (total)), 2)
                     retorno = {
                         "quantidade_falhas": falhas, 
                         "quantidade_sucessos": sucesso, 
                         "arquivos": caminhos,
                         "arquivos_enviados": total,
-                        "bytes_enviados": size(bytes_enviados),
+                        "bytes_enviados": size(bytes_enviados, system=alternative),
                         "porcentagem_de_falha": porcentagem_falhas,
                         "porcentagem_de_sucesso": porcentagem_sucessos,
                         "msg": str(porcentagem_sucessos)+'% dos arquivos foram enviados com sucesso.' if not caminhos == [] else "Os campos dos arquivos estão todos vazios."
