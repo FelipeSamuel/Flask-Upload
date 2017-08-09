@@ -1,8 +1,9 @@
 from seumodulo import app
 from seumodulo import log
-from seumodulo import request
+from flask import request
 import os
 import uuid
+from hurry.filesize import size
 
 class Upload(object):
 
@@ -47,8 +48,8 @@ class Upload(object):
             pasta += '\\comprimidos'
         elif self.__extensao in self.__aplicativos:
             pasta += '\\aplicativos'
-        elif self.__extensao in self.__fonts:
-            pasta += '\\fonts'
+        elif self.__extensao in self.__fontes:
+            pasta += '\\fontes'
         elif self.__extensao in self.__vetores:
             pasta += '\\vetores'
         elif self.__extensao in self.__scripts:
@@ -66,6 +67,7 @@ class Upload(object):
 
         return pasta
 
+
     @property
     def path(self):
         return self.__path
@@ -73,6 +75,18 @@ class Upload(object):
     @property
     def erro(self):
         return self.__erro
+
+    @property
+    def nome(self):
+        return self.__nome
+
+    @property
+    def extensao(self):
+        return self.__extensao
+
+    @property
+    def file(self):
+        return self.__file
 
     def salvar(self):
         self.__erro = 'Falha ao salvar arquivo.'
@@ -102,14 +116,64 @@ class Upload(object):
 # Decorador
 def file_upload(func):
         def uploading(*args, **kwargs):
-            if request.method == 'POST':
-                if 'file' in request.files:
-                    u = Upload(request.files['file'])
+            try:
+                if request.method == 'POST':
                     retorno = None
-                    if u.salvar():
-                        retorno = {"erro": False, "path": u.path}
-                    else:
-                        retorno = {"erro": True, "msg": u.erro}
+                    caminhos = []
+                    falhas = 0
+                    sucesso = 0
+                    total = 0
+                    bytes_enviados = 0
+                    for arquivo in request.files:
+                        tamanho = request.files[arquivo].seek(0,2)
+                        if request.files[arquivo]:
+                            total += 1
+                            if tamanho <= app.config['MAX_SIZE_UPLOAD']:
+                                u = Upload(request.files[arquivo])
+                                if u.salvar():
+                                    caminhos.append(
+                                        {
+                                            "erro": False, 
+                                            "campo": arquivo, 
+                                            "caminho_completo": u.path,
+                                            "extensao": u.extensao,
+                                            "tamanho": size(tamanho),
+                                            "nome_arquivo": u.nome,
+                                            "msg": "Arquivo enviado com sucesso."
+                                        })
+                                    sucesso += 1
+                                    bytes_enviados += tamanho
+                                else:
+                                    caminhos.append(
+                                        {
+                                            "erro": True, 
+                                            "campo": arquivo, 
+                                            "msg": u.erro
+                                        })
+                                    falhas +=1 
+                            else:
+                                caminhos.append(
+                                            {
+                                                "erro": True, 
+                                                "campo": arquivo, 
+                                                "msg": "O arquivo excede o tamanho máximo permitido."
+                                            })
+                                falhas +=1 
+
+                    porcentagem_falhas =  round((100 * float(falhas) / float (total)), 2)
+                    porcentagem_sucessos = round((100 * float(sucesso) / float (total)), 2)
+                    retorno = {
+                        "quantidade_falhas": falhas, 
+                        "quantidade_sucessos": sucesso, 
+                        "arquivos": caminhos,
+                        "arquivos_enviados": total,
+                        "bytes_enviados": size(bytes_enviados),
+                        "porcentagem_de_falha": porcentagem_falhas,
+                        "porcentagem_de_sucesso": porcentagem_sucessos,
+                        "msg": str(porcentagem_sucessos)+'% dos arquivos foram enviados com sucesso.' if not caminhos == [] else "Os campos dos arquivos estão todos vazios."
+                        }
                     return func(retorno, *args, **kwargs)
+            except:
+                log.logging()
             return func(*args, **kwargs)
         return uploading
