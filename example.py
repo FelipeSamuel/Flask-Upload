@@ -2,6 +2,7 @@ from flask import Flask
 from flask import request
 from flask import jsonify
 from Upload import file_upload, multi_file_upload
+from flask import send_from_directory
 import os
 
 app = Flask(__name__)
@@ -9,6 +10,7 @@ app = Flask(__name__)
 # Config Uploads
 app.config['APP_DIR'] =  os.path.abspath(__file__)+"\\.."
 app.config['UPLOAD_FOLDER'] = app.config['APP_DIR']+'\\uploads'
+app.config['GET_UPLOAD_FOLDER'] = 'uploads/'
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg'])
 app.config['MAX_FILE_UPLOAD'] = 4
 app.config['MAX_SIZE_UPLOAD'] = 10000 # em bytes
@@ -59,6 +61,14 @@ def multi_upload(resultado = ''):
      '''
   # Retorna um discionario
   return jsonify(resultado)
+
+
+
+
+@app.route('/uploads/<pasta>/<filename>')
+def get_uploads(pasta, filename):
+    return send_from_directory(app.config['GET_UPLOAD_FOLDER']+'/'+pasta+'/',
+                               filename)
         
 if __name__ == '__main__':
   app.run(port=8080, debug=True)
