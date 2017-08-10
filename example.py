@@ -44,7 +44,7 @@ Porem, so sera enviado com a anotacao @multi_file_upload
 Deve ser configurado a quantidade máxima de arquivos de upload. app.config['MAX_FILE_UPLOAD']
 Deve ser configurado o tamanho máxim do arquivo para upload. app.config['MAX_SIZE_UPLOAD']
 """
-@app.route('/upload', methods=['POST', 'GET'])
+@app.route('/upload/multiplo', methods=['POST', 'GET'])
 @multi_file_upload
 def multi_upload(resultado = ''):
   if request.method == 'GET':
