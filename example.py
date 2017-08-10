@@ -1,8 +1,7 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
-from Upload import Upload
-from Upload import file_upload
+from Upload import file_upload, multi_file_upload
 import os
 
 app = Flask(__name__)
